@@ -9,6 +9,13 @@
 
 (defstruct dict-pointer :str_offset :l :r)
 
+(defn boundary? [dict pointer]
+  (and (not (nil? pointer))
+       (not (nil? (pointer :str_offset)))
+       (= (count (nth dict
+                      (pointer :l)))
+          (+ 1 (pointer :str_offset)))))
+
 (defn create-dict-iter [dict str_offset ch pos]  
   (fn [_l _r]
     (loop [l _l r _r ans nil]
@@ -16,7 +23,7 @@
         (let [m (unchecked-divide-int (+ l r) 2)
               dict_item (nth dict m)
               len (count dict_item)]
-          (if (< len str_offset)
+          (if (<= len str_offset)
             (recur (+ m 1) r ans)
             (let [_ch (nth dict_item str_offset)
                   cmp (compare _ch ch)]

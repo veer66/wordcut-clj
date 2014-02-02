@@ -44,4 +44,9 @@
              [(struct path-info nil 1 0 :dict)
               nil
               (struct path-info 0 2 1 :unk)
-              (struct path-info 2 3 1 :dict)])))))
+              (struct path-info 2 3 1 :dict)]))
+      (is (= (build-path dict "กABข")
+             [(struct path-info nil 1 0 :dict)
+              nil
+              (struct path-info 0 2 0 :rule)
+              (struct path-info 2 3 0 :dict)])))))

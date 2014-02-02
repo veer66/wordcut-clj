@@ -3,11 +3,6 @@
   (:require [clojure.pprint :as pprint])
   (:gen-class))
 
-;(defn remove-empty-line [lines]
-;(filter (fn [line] (not= line ""))
-;        lines))
-
-
 (defstruct dict-pointer :str_offset :l :r)
 
 (defn boundary? [dict pointer]
@@ -108,6 +103,23 @@
            paths)
     nil))
 
+(defn match-rules? [text left_boundary i]
+  (let [left_boundary_ (if (nil? left_boundary)
+                         0
+                         (+ left_boundary 1))
+        text_ (apply str
+                     (drop left_boundary_
+                           (take (+ 1 i) text)))]
+    (not (nil? (re-matches #"^[A-Za-z0-9]+$" text_)))))
+
+(defn build-path-info-by-rules [path left_boundary i]
+  (if (nil? left_boundary)
+    (struct path-info nil 1 0 :rule)
+    (let [_path_info (nth path left_boundary)
+          w (_path_info :w)
+          unk (_path_info :unk)]
+      (struct path-info left_boundary (+ w 1) unk :rule))))
+
 (defn build-path [dict text]
   (let [len (count text)
         move-pointer (create-move-pointer dict)]
@@ -123,21 +135,27 @@
               pointers_  (filter not-nil?
                                  (map move-pointer_ pointers))
               boundary_? (fn [pointer] (boundary? dict pointer))
-              edge_pointers (filter boundary_? pointers_)
+              edge_pointers  (filter boundary_? pointers_)
               possible_path_infos (build-path-infos path
                                                     edge_pointers
                                                     i
                                                     left_boundary)
-              selected_path (select-path possible_path_infos)
-              path_ (if (and (= :unk (selected_path :type))
-                             (> (count path) 0)
-                             (= :unk ((last path) :type)))
+              _selected_path (select-path possible_path_infos)
+              selected_path (if (and (= :unk (_selected_path :type))
+                                     (match-rules? text left_boundary i))
+                              (build-path-info-by-rules path left_boundary i)
+                            _selected_path)
+              path_ (if (and (> (count path) 0)
+                             (or (and (= :unk (selected_path :type))
+                                      (= :unk ((last path) :type)))
+                                 (and (= :rule (selected_path :type))
+                                      (= :rule ((last path) :type)))))
                       (conj (vec (drop-last path)) nil)
                       path)]
           (recur (+ i 1)
                  (conj pointers_ (create-pointer dict))
                  (conj path_ selected_path)
-                 (if (not= :unk (selected_path :type))
+                 (if (= :dict (selected_path :type))
                    i
                    left_boundary)))))))
 

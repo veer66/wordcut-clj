@@ -65,22 +65,23 @@
     lines))
 
 (defstruct path-info :p :w :unk :type)
-
+ 
 (defn build-path-infos-basic [path edge_pointers i]
-  (map (fn [pointer]
-         (let [_p  (- (- i
-                         (pointer :str_offset))
-                      1)]
-           (if (< _p 0)
-             (struct path-info nil 1 0 :dict)
-             (let [p _p
-                   _path_info (nth path p)]
-               (if (nil? _path_info)
-                 nil
-                 (let [w (+ 1 (_path_info :w))
-                       unk (_path_info :unk)]
-                   (struct path-info p w unk :dict)))))))
-       edge_pointers))
+  (filter (fn [p] (not (nil? p)))
+          (map (fn [pointer]
+                 (let [_p  (- (- i
+                                 (pointer :str_offset))
+                              1)]
+                   (if (< _p 0)
+                     (struct path-info nil 1 0 :dict)
+                     (let [p _p
+                           _path_info (nth path p)]
+                       (if (nil? _path_info)
+                         nil
+                         (let [w (+ 1 (_path_info :w))
+                               unk (_path_info :unk)]
+                           (struct path-info p w unk :dict)))))))
+               edge_pointers)))
 
 (defn build-path-info-unk [path left_boundary]
   (if (nil? left_boundary)
@@ -97,11 +98,16 @@
       [(build-path-info-unk path left_boundary)])))
 
 (defn select-path [paths]
-  (if (> (count paths) 0)
-    (apply max-key
-           (fn [path] (path :w))
-           paths)
-    nil))
+  (reduce (fn [selected_path path]
+            (if (nil? selected_path)
+              path
+              (if (or (< (path :unk) (selected_path :unk))
+                      (and (= (path :unk) (selected_path :unk))
+                           (< (path :w) (selected_path :w))))
+                path
+                selected_path)))
+          nil
+          paths))
 
 (defn match-rules? [text left_boundary i]
   (let [left_boundary_ (if (nil? left_boundary)
@@ -144,22 +150,45 @@
               selected_path (if (and (= :unk (_selected_path :type))
                                      (match-rules? text left_boundary i))
                               (build-path-info-by-rules path left_boundary i)
-                            _selected_path)
-              path_ (if (and (> (count path) 0)
-                             (or (and (= :unk (selected_path :type))
-                                      (= :unk ((last path) :type)))
-                                 (and (= :rule (selected_path :type))
-                                      (= :rule ((last path) :type)))))
-                      (conj (vec (drop-last path)) nil)
-                      path)]
-          (recur (+ i 1)
-                 (conj pointers_ (create-pointer dict))
-                 (conj path_ selected_path)
-                 (if (= :dict (selected_path :type))
-                   i
-                   left_boundary)))))))
+                              _selected_path)
+              path_ path]
+          (do
+            (recur (+ i 1)
+                   (conj pointers_ (create-pointer dict))
+                   (conj path_ selected_path)
+                   (if (= :dict (selected_path :type))
+                     i
+                     left_boundary))))))))
 
+(defstruct word-range :s :e)
+
+(defn path-to-ranges [path]
+  (let [len (count path)]
+    (loop [i (- len 1) ranges (list)]
+      (if (nil? i)
+        ranges
+        (let [info (nth path i)
+              p (info :p)
+              p_ (if (nil? p) 0 (+ 1 p))
+              ]
+          (recur p
+                 (cons (struct word-range
+                               p_ (+ 1 i))
+                       ranges)))))))
+
+(defn ranges-to-text [ranges text]
+  (let [texts (map (fn [r] (apply str
+                                 (drop (r :s)
+                                       (take (r :e)
+                                            text))))
+                   ranges)]
+    (str/join "|" texts)))
 (defn -main
-  "I don't do a whole lot ... yet."
+  "..."
   [& args]
-  (println "Hello, World!"))
+  (let [data (slurp "data1.txt")
+        dict (read-dict "tdict-std.txt")
+        path (build-path dict data)
+        ranges (path-to-ranges path)
+        o (ranges-to-text ranges data)]
+    (println o)))

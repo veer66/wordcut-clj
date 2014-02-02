@@ -71,19 +71,35 @@
 
 (defstruct path-info :p :w :unk :type)
 
-(defn build-path-infos [path edge_pointers i]
+(defn build-path-infos-basic [path edge_pointers i]
   (map (fn [pointer]
          (let [_p  (- (- i
-                        (pointer :str_offset))
-                      1)
-               p (if (< _p 0) nil _p)
-               w (if (nil? p)
-                   1
-                   (+ ((nth path p) :w) 1))
-               unk 0 type :dict]
-           (do 
-             (struct path-info p w unk type))))
+                         (pointer :str_offset))
+                      1)]
+           (if (< _p 0)
+             (struct path-info nil 1 0 :dict)
+             (let [p _p
+                   _path_info (nth path p)]
+               (if (nil? _path_info)
+                 nil
+                 (let [w (+ 1 (_path_info :w))
+                       unk (_path_info :unk)]
+                   (struct path-info p w unk :dict)))))))
        edge_pointers))
+
+(defn build-path-info-unk [path left_boundary]
+  (if (nil? left_boundary)
+    (struct path-info left_boundary 1 1 :unk)
+    (let [_path_info (nth path left_boundary)
+          _w (_path_info :w)
+          _unk (_path_info :unk)]
+      (struct path-info left_boundary (+ _w 1) (+ _unk 1) :unk))))
+
+(defn build-path-infos [path edge_pointers i left_boundary]
+  (let [basic_path_infos (build-path-infos-basic path edge_pointers i)]
+    (if (> (count basic_path_infos) 0)
+      basic_path_infos
+      [(build-path-info-unk path left_boundary)])))
 
 (defn select-path [paths]
   (if (> (count paths) 0)
@@ -97,7 +113,8 @@
         move-pointer (create-move-pointer dict)]
     (loop [i 0
            pointers [(create-pointer dict)]
-           path []]
+           path []
+           left_boundary nil]
       (if (= len i)
         path
         (let [ch (nth text i)
@@ -107,11 +124,22 @@
                                  (map move-pointer_ pointers))
               boundary_? (fn [pointer] (boundary? dict pointer))
               edge_pointers (filter boundary_? pointers_)
-              possible_path_infos (build-path-infos path edge_pointers i)
-              selected_path (select-path possible_path_infos)]
+              possible_path_infos (build-path-infos path
+                                                    edge_pointers
+                                                    i
+                                                    left_boundary)
+              selected_path (select-path possible_path_infos)
+              path_ (if (and (= :unk (selected_path :type))
+                             (> (count path) 0)
+                             (= :unk ((last path) :type)))
+                      (conj (vec (drop-last path)) nil)
+                      path)]
           (recur (+ i 1)
                  (conj pointers_ (create-pointer dict))
-                 (conj path selected_path)))))))
+                 (conj path_ selected_path)
+                 (if (not= :unk (selected_path :type))
+                   i
+                   left_boundary)))))))
 
 (defn -main
   "I don't do a whole lot ... yet."

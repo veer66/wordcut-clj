@@ -34,4 +34,14 @@
     (testing "build-path"
       (is (= (build-path dict "กก")
              [(struct path-info nil 1 0 :dict)
-              (struct path-info 0 2 0 :dict)])))))
+              (struct path-info 0 2 0 :dict)]))
+      (is (= (build-path dict "ขคขจ")
+             [(struct path-info nil 1 0 :dict)
+              (struct path-info nil 1 0 :dict)
+              (struct path-info 1 2 0 :dict)
+              (struct path-info 1 2 0 :dict)]))
+      (is (= (build-path dict "กธนข")
+             [(struct path-info nil 1 0 :dict)
+              nil
+              (struct path-info 0 2 1 :unk)
+              (struct path-info 2 3 1 :dict)])))))

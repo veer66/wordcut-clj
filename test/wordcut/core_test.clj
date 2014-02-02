@@ -28,3 +28,10 @@
     (testing "read-dict"
       (is (= (second dict) "กกต"))
       (is (= (count dict) 9)))))
+
+(deftest path-building-test
+  (let [dict (read-dict "test/test_dict.txt")]
+    (testing "build-path"
+      (is (= (build-path dict "กก")
+             [(struct path-info nil 1 0 :dict)
+              (struct path-info 0 2 0 :dict)])))))

@@ -1,5 +1,6 @@
 (ns wordcut.core
   (:require [clojure.string :as str])
+  (:require [clojure.pprint :as pprint])
   (:gen-class))
 
 ;(defn remove-empty-line [lines]
@@ -67,6 +68,50 @@
 (defn read-dict [path]
   (let [lines (str/split-lines (slurp path))]
     lines))
+
+(defstruct path-info :p :w :unk :type)
+
+(defn build-path-infos [path edge_pointers i]
+  (map (fn [pointer]
+         (let [_p  (- (- i
+                        (pointer :str_offset))
+                      1)
+               p (if (< _p 0) nil _p)
+               w (if (nil? p)
+                   1
+                   (+ ((nth path p) :w) 1))
+               unk 0 type :dict]
+           (do 
+             (struct path-info p w unk type))))
+       edge_pointers))
+
+(defn select-path [paths]
+  (if (> (count paths) 0)
+    (apply max-key
+           (fn [path] (path :w))
+           paths)
+    nil))
+
+(defn build-path [dict text]
+  (let [len (count text)
+        move-pointer (create-move-pointer dict)]
+    (loop [i 0
+           pointers [(create-pointer dict)]
+           path []]
+      (if (= len i)
+        path
+        (let [ch (nth text i)
+              move-pointer_ (fn [pointer] (move-pointer pointer ch))
+              not-nil? (fn [pointer] (not (nil? pointer)))
+              pointers_  (filter not-nil?
+                                 (map move-pointer_ pointers))
+              boundary_? (fn [pointer] (boundary? dict pointer))
+              edge_pointers (filter boundary_? pointers_)
+              possible_path_infos (build-path-infos path edge_pointers i)
+              selected_path (select-path possible_path_infos)]
+          (recur (+ i 1)
+                 (conj pointers_ (create-pointer dict))
+                 (conj path selected_path)))))))
 
 (defn -main
   "I don't do a whole lot ... yet."

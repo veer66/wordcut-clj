@@ -1,5 +1,4 @@
 (ns wordcut.dict
-  (:require [clojure.string :as str])
   (:gen-class))
 
 (defn dict-seek [dict policy l r offset ch]
@@ -18,3 +17,24 @@
                   (= policy :LEFT) (recur l (- m 1) m)
                   (= policy :RIGHT) (recur (+ 1 m) r m)))))    
       ans)))
+
+(defn pointer-update [pointer ch]
+  (let [p pointer
+        offset (:offset p)
+	dict (:dict p)
+	l (dict-seek dict :LEFT (:l p) (:r p) offset ch)]
+    (when l
+      (let [r (dict-seek (:dict p) :RIGHT l (:r p) offset ch)
+            w (first (nth dict l))
+            w-len (count w)]
+        {:s (:s p) :l l :r r :offset (inc offset)
+         :is-final (= w-len (inc offset))}))))
+
+(defn pointers-update [pointers dict text i]
+  (let [ch (nth text i)
+        added-pointers (conj pointers {:s i :l 0 :r (dec (count dict))
+                                       :dict dict :offset 0 :is-final false
+                                       :payload nil})
+        updated-pointers (map #(pointer-update % ch) added-pointers)
+        removed-pointers (remove nil? updated-pointers)]
+    removed-pointers))

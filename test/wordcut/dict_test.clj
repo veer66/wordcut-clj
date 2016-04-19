@@ -11,7 +11,8 @@
   (testing "basic right search"
     (is (= 3 (dict-seek (basic-dict) :RIGHT 0 3 0 \B))))
   (testing "offset=1 search"
-    (is (= 3 (dict-seek (basic-dict) :LEFT 2 3 1 \C))))
+    (is (= 3 (dict-seek (basic-dict) :LEFT 2 3 1 \C)))
+    (is (= 1 (dict-seek (basic-dict) :LEFT 0 1 1 \B))))
   (testing "not found"
     (is (nil? (dict-seek (basic-dict) :LEFT 0 3 0 \K)))))
 
@@ -27,7 +28,13 @@
       (is (:l pointer) 2)
       (is (:r pointer) 3)
       (is (:offset pointer) 1)
-      (is (not (:is-final pointer))))))
+      (is (not (:is-final pointer)))))
+  (testing "final"
+    (is (-> (basic-dict-pointer)
+            (pointer-update \A)
+            (pointer-update \B)
+            :is-final))))
+
 
 (deftest dict-pointers-test
   (testing "update"

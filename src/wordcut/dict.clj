@@ -11,7 +11,6 @@
           (recur (+ 1 m) r ans)
           (let [ch-w (nth w offset)
                 cmp (compare ch-w ch)]
-            (println cmp)
             (cond (< cmp 0) (recur (+ 1 m) r ans)
                   (> cmp 0) (recur l (- m 1) ans)
                   (= policy :LEFT) (recur l (- m 1) m)
@@ -28,6 +27,7 @@
             w (first (nth dict l))
             w-len (count w)]
         {:s (:s p) :l l :r r :offset (inc offset)
+         :dict dict
          :is-final (= w-len (inc offset))}))))
 
 (defn pointers-update [pointers dict text i]

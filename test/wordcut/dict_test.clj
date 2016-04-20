@@ -38,8 +38,20 @@
 
 (deftest dict-pointers-test
   (testing "update"
-    (let [pointers (pointers-update (basic-dict) [] "B" 0)]
-      (is (count pointers) 1)
-      (let [pointer (first pointers)]
-        (is (:s pointer) 0)
-        (is (not (:is-final pointer)))))))
+    (is (= (pointers-update [] (basic-dict) "B" 0)
+           [{:s 0 :is-final false
+             :l 2 :r 3 :offset 1
+             :dict (basic-dict)}]))))
+
+(deftest large-dict-seek-test
+  (testing "basic seek"
+    (is (= (dict-seek (read-default-thai-dict) :LEFT
+                      0 (dec (count (read-default-thai-dict))) 0
+                      \ข)
+           1474))
+    (is (= (dict-seek (read-default-thai-dict) :RIGHT
+                      0 (dec (count (read-default-thai-dict))) 0
+                      \ข)
+           1701))
+    (is (= (dict-seek (read-default-thai-dict) :LEFT
+                      1474 1701 1 \อ)))))

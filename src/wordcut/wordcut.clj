@@ -25,9 +25,10 @@
 
 (defn build-dict-edges [dag pointers]
   (map (fn [p]
-         (let [src (nth dag (:s p))]
+         (let [s (:s p)
+               src (nth dag s)]
            {:etype :DICT
-            :s (:s src)
+            :s s
             :unk (:unk src)
             :chunk (inc (:chunk src))
             :payload (:payload src)}))
@@ -99,6 +100,7 @@
                                             (if (= e len)
                                               false
                                               (is-space (nth text e))))]
+;;          (pprint/pprint pointers)
           (cond
             (> (count final-p) 0)
             (do
@@ -120,5 +122,3 @@
       lst
       (let [s (:s (nth dag e))]
         (recur s (cons (subs text s e) lst))))))
-
-

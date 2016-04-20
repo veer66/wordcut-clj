@@ -1,6 +1,6 @@
-(ns wordcut.dict-test
+(ns wordcut.wordcut-test
   (:require [clojure.test :refer :all]
-            [wordcut.wordcut :refer :all]))OA
+            [wordcut.wordcut :refer :all]))
 
 (defn basic-dict []
   [["AA"] ["AB"] ["BA"] ["BC"]])
@@ -31,8 +31,6 @@
   [{:s 0 :is-final true}
    {:s 1 :is-final true}
    {:s 2 :is-final true}])
-
-
 
 (deftest build-dict-edges-test
   (testing "simple"
@@ -112,8 +110,9 @@
            {:chunk 2 :unk 1 :payload nil :etype :UNK :s 2}
            ))
     (is (= (nth (build-dag "AB X" (basic-dict)) 3)
-           {:chunk 2 :unk 0 :payload nil :etype :SPACE :s 2}
-           ))
+           {:chunk 2 :unk 0 :payload nil :etype :SPACE :s 2}))
+    (is (= (nth (build-dag "ABAB" (basic-dict)) 4)
+           {:chunk 2 :unk 0 :payload nil :etype :DICT :s 2}))
     (is (= (nth (build-dag "AB X" (basic-dict)) 4)
            {:chunk 3 :unk 1 :payload nil :etype :UNK :s 3}))))
   

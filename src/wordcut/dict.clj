@@ -1,5 +1,18 @@
 (ns wordcut.dict
+  (:require [clojure.string :as str])
+  (:require [clojure.java.io :as io])
   (:gen-class))
+
+(defn read-dict [uri]
+  (let [lines (str/split-lines (slurp uri))]
+    (map (fn [line] (vector line))
+         (sort lines))))
+
+(defn default-thai-dict-url []
+  (io/resource "tdict-std.txt"))
+
+(defn read-default-thai-dict []
+  (read-dict (default-thai-dict-url)))
 
 (defn dict-seek [dict policy l r offset ch]
   (loop [l l r r ans nil]
@@ -33,8 +46,7 @@
 (defn pointers-update [pointers dict text i]
   (let [ch (nth text i)
         added-pointers (conj pointers {:s i :l 0 :r (dec (count dict))
-                                       :dict dict :offset 0 :is-final false
-                                       :payload nil})
+                                       :dict dict :offset 0 :is-final false})
         updated-pointers (map #(pointer-update % ch) added-pointers)
         removed-pointers (remove nil? updated-pointers)]
     removed-pointers))

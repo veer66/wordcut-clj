@@ -14,6 +14,18 @@
 (defn read-default-thai-dict []
   (read-dict (default-thai-dict-url)))
 
+(defn default-lao-dict-url []
+  (io/resource "laowords.txt"))
+
+(defn read-default-lao-dict []
+  (read-dict (default-lao-dict-url)))
+
+(defn default-khmer-dict-url []
+  (io/resource "khmerwords.txt"))
+
+(defn read-default-khmer-dict []
+  (read-dict (default-khmer-dict-url)))
+
 (defn dict-seek [dict policy l r offset ch]
   (loop [l l r r ans nil]
     (if (<= l r)

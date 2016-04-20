@@ -1,3 +1,17 @@
-# wordcut-clj is just for fun, not for serious usage.
+# wordcut-clj 
 
-Thai word breaker written in Clojure
+A word segmentation tool for ASEAN languages written in Clojure
+
+## Example
+
+### Khmer (Cambodian)
+
+     ((tokenizer (read-default-khmer-dict)) "ភាសាខ្មែរ")
+
+### Lao
+
+     ((tokenizer (read-default-lao-dict)) "ພາສາລາວມີ")
+
+### Thai
+
+     ((tokenizer (read-default-thai-dict)) "ภาษาไทย")

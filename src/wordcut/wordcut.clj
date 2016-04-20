@@ -5,7 +5,7 @@
 
 (defn better? [o1 o2]
   (loop [attrs '(:unk :chunk) ans nil]
-    (if (nil? attrs)
+    (if (empty? attrs)
       ans
       (let [attr (first attrs)
             v1 (get o1 attr)
@@ -122,3 +122,8 @@
       lst
       (let [s (:s (nth dag e))]
         (recur s (cons (subs text s e) lst))))))
+
+(defn tokenizer [dict]
+  (fn [text]
+    (dag-to-list (build-dag text dict)
+                 text)))

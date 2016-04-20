@@ -6,18 +6,21 @@
   (:require [wordcut.wordcut :as w])
   (:require [clojure.java.io :as io])
   (:require [clojure.string :as str])
+  (:use clojopts.core)
   (:gen-class))
-
-(defn tokenizer [dict]
-  (fn [text]
-    (w/dag-to-list (w/build-dag text dict)
-                    text)))
-
-
 
 (defn -main
   "..."
   [& args]
-  (let [tokenize (tokenizer (d/read-default-thai-dict))]
+  (let [opts (clojopts "wordcut"
+                       args
+                       (with-arg lang l "language"))
+        lang (:lang opts)
+        dict (cond
+               (= lang "khmer") (d/read-default-khmer-dict)
+               (= lang "lao") (d/read-default-lao-dict)
+               (= lang "thai") (d/read-default-thai-dict)
+               :else (d/read-default-thai-dict))
+        tokenize (w/tokenizer dict)]
     (doseq [line (line-seq (io/reader *in*))]
       (println (str/join "|" (tokenize line))))))

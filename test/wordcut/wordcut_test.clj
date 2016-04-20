@@ -1,5 +1,6 @@
 (ns wordcut.wordcut-test
   (:require [clojure.test :refer :all]
+            [wordcut.dict :refer :all]
             [wordcut.wordcut :refer :all]))
 
 (defn basic-dict []
@@ -125,3 +126,19 @@
                          {:chunk 3 :unk 1 :payload nil :etype :UNK :s 3}]
                         "AB X")
            ["AB" " " "X"]))))
+
+(defn lao-tokenizer []
+  (tokenizer (read-default-lao-dict)))
+  
+(deftest lao-tokenizer-test
+  (testing "basic"
+    (is (= ((lao-tokenizer) "ພາສາລາວມີ")
+           (list "ພາສາ" "ລາວ" "ມີ")))))
+
+(defn khmer-tokenizer []
+  (tokenizer (read-default-khmer-dict)))
+
+(deftest khmer-tokenizer-test
+  (testing "basic"
+    (is (= ((khmer-tokenizer) "ភាសាខ្មែរ")
+           (list "ភាសា" "ខ្មែរ")))))

@@ -1,9 +1,6 @@
-;;(load "dict")
-;;(load "wordcut")
-
 (ns wordcut.core
   (:require [wordcut.dict :as d])
-  (:require [wordcut.wordcut :as w])
+  (:require [wordcut.tokenizer :as w])
   (:require [clojure.java.io :as io])
   (:require [clojure.string :as str])
   (:use clojopts.core)

@@ -4,14 +4,20 @@ A word segmentation tool for ASEAN languages written in Clojure
 
 ## Example
 
+     (:require [wordcut.tokenizer :refer :all])
+
 ### Khmer (Cambodian)
 
-     ((tokenizer (read-default-khmer-dict)) "ភាសាខ្មែរ")
+     ((khmer-tokenizer) "ភាសាខ្មែរ")
 
 ### Lao
 
-     ((tokenizer (read-default-lao-dict)) "ພາສາລາວມີ")
+     ((lao-tokenizer) "ພາສາລາວມີ")
 
 ### Thai
 
-     ((tokenizer (read-default-thai-dict)) "ภาษาไทย")
+     ((thai-tokenizer) "ภาษาไทย")
+
+## Leiningen
+
+     [wordcut "0.1.1"]

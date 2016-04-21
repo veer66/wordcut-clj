@@ -1,6 +1,5 @@
-(ns wordcut.wordcut
+(ns wordcut.tokenizer
   (:require [wordcut.dict :refer :all])
-  (:require [clojure.pprint :as pprint])
   (:gen-class))
 
 (defn better? [o1 o2]
@@ -100,7 +99,6 @@
                                             (if (= e len)
                                               false
                                               (is-space (nth text e))))]
-;;          (pprint/pprint pointers)
           (cond
             (> (count final-p) 0)
             (do
@@ -127,3 +125,12 @@
   (fn [text]
     (dag-to-list (build-dag text dict)
                  text)))
+
+(defn lao-tokenizer []
+  (tokenizer (read-default-lao-dict)))
+
+(defn khmer-tokenizer []
+  (tokenizer (read-default-khmer-dict)))
+
+(defn thai-tokenizer []
+  (tokenizer (read-default-thai-dict)))

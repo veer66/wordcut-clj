@@ -13,11 +13,11 @@
                        args
                        (with-arg lang l "language"))
         lang (:lang opts)
-        dict (cond
-               (= lang "khmer") (d/read-default-khmer-dict)
-               (= lang "lao") (d/read-default-lao-dict)
-               (= lang "thai") (d/read-default-thai-dict)
-               :else (d/read-default-thai-dict))
+        dict (case lang
+               "khmer" (d/read-default-khmer-dict)
+               "lao" (d/read-default-lao-dict)
+               "thai" (d/read-default-thai-dict)
+               (d/read-default-thai-dict))
         tokenize (w/tokenizer dict)]
     (doseq [line (line-seq (io/reader *in*))]
       (println (str/join "|" (tokenize line))))))

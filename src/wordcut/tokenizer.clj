@@ -13,12 +13,7 @@
           '(:unk :chunk)))
 
 (defn best-edge [edges]
-  (reduce (fn [best e]
-            (cond
-              (nil? best) e
-              (better? e best) e
-              :else best))
-          nil edges))
+  (reduce (fn [best e] (if (better? e best) e best)) edges))
 
 (defn build-dict-edges [dag pointers]
   (map (fn [p]

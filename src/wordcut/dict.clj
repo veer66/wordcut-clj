@@ -56,9 +56,8 @@
          :is-final (= w-len (inc offset))}))))
 
 (defn pointers-update [pointers dict text i]
-  (let [ch (nth text i)
-        added-pointers (conj pointers {:s i :l 0 :r (dec (count dict))
-                                       :dict dict :offset 0 :is-final false})
-        updated-pointers (map #(pointer-update % ch) added-pointers)
-        removed-pointers (remove nil? updated-pointers)]
-    removed-pointers))
+  (let [ch (nth text i)]
+    (->> (conj pointers {:s i :l 0 :r (dec (count dict))
+                         :dict dict :offset 0 :is-final false})
+         (map #(pointer-update % ch))
+         (remove nil?))))

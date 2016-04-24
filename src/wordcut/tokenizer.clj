@@ -3,16 +3,14 @@
   (:gen-class))
 
 (defn better? [o1 o2]
-  (loop [attrs '(:unk :chunk) ans nil]
-    (if (empty? attrs)
-      ans
-      (let [attr (first attrs)
-            v1 (get o1 attr)
-            v2 (get o2 attr)]
-        (cond
-          (< v1 v2) (recur nil true)
-          (> v1 v2) (recur nil false)
-          :else (recur (rest attrs) nil))))))
+  (reduce (fn [_ attr]
+            (let [v1 (get o1 attr)
+                  v2 (get o2 attr)]
+              (cond
+                (< v1 v2) (reduced true)
+                (> v1 v2) (reduced false))))
+          nil
+          '(:unk :chunk)))
 
 (defn best-edge [edges]
   (reduce (fn [best e]

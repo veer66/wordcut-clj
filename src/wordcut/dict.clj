@@ -4,9 +4,9 @@
   (:gen-class))
 
 (defn read-dict [uri]
-  (let [lines (str/split-lines (slurp uri))]
-    (map (fn [line] (vector line))
-         (sort lines))))
+  (into-array (let [lines (str/split-lines (slurp uri))]
+                (map (fn [line] (vector line))
+                     (sort lines)))))
 
 (defn default-thai-dict-url []
   (io/resource "tdict-std.txt"))
@@ -29,7 +29,7 @@
 (defn dict-seek [dict policy l r offset ch]
   (loop [l l r r ans nil]
     (if (<= l r)
-      (let [m (int (/ (+ l r) 2))
+      (let [m (bit-shift-right (+ l r) 1)
             w (first (nth dict m))
             wlen (count w)]
         (if (<= wlen offset)

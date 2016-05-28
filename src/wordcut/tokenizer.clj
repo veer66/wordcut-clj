@@ -76,36 +76,35 @@
 
 (defn build-dag [text dict]
   (let [len (count text)
-        dag (transient (vector (take (inc len) (repeat nil))))]
-    (assoc! dag 0 {:chunk 0 :unk 0 :s 0 :payload nil :etype :INIT})
-    (loop [pre-pointers []
-           pre-space-info {:s 0 :is-final false :offset 0}
-           i 0
-           left 0]
-      (when (< i len)
-        (let [e (inc i)
-              ch (nth text i)
-              pointers (pointers-update pre-pointers dict text i)
-              final-p (filter (fn [p] (:is-final p)) pointers)
-              space-info (update-space-info pre-space-info
-                                            (is-space ch)
-                                            (if (= e len)
+        init-dag (transient (vector (take (inc len) (repeat nil))))]
+    (persistent!
+     (loop [dag (assoc! init-dag 0 {:chunk 0 :unk 0 :s 0 :payload nil :etype :INIT})
+            pre-pointers ()
+            pre-space-info {:s 0 :is-final false :offset 0}
+            i 0
+            left 0]
+       (if (< i len)
+         (let [e (inc i)
+               ch (nth text i)
+               pointers (pointers-update pre-pointers dict text i)
+               final-p (filter (fn [p] (:is-final p))
+                               pointers)
+               space-info (update-space-info pre-space-info
+                                             (is-space ch)
+                                             (if (= e len)
                                               false
                                               (is-space (nth text e))))]
-          (cond
-            (> (count final-p) 0)
-            (do
-              (update-dag-by-dict! dag e final-p)
-              (recur pointers space-info e e))
-            (:is-final space-info)
-            (do
-              (update-dag-by-space! dag e space-info)
-              (recur pointers space-info e e))
-            :else (do
-                    (update-dag-by-unk! dag left e)
-                    (recur pointers space-info e left)))
-          )))
-    (persistent! dag)))
+           (cond
+             (not (empty? final-p))
+             (recur (update-dag-by-dict! dag e final-p)
+                    pointers space-info e e)
+             (:is-final space-info)
+             (recur (update-dag-by-space! dag e space-info)
+                    pointers space-info e e)
+             :else
+             (recur (update-dag-by-unk! dag left e)
+                    pointers space-info e left)))
+         dag)))))
                   
 (defn dag-to-list [dag text]
   (loop [e (count text) lst nil]

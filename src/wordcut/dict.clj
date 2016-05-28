@@ -26,8 +26,13 @@
 (defn read-default-khmer-dict []
   (read-dict (default-khmer-dict-url)))
 
-(defn dict-seek [dict policy l r offset ch]
-  (loop [l l r r ans nil]
+(defn dict-seek [dict
+                 policy
+                 ^Integer l
+                 ^Integer r
+                 ^Integer offset
+                 ^Character ch]
+  (loop [^Integer l l ^Integer r r ^Integer ans nil]
     (if (<= l r)
       (let [m (bit-shift-right (+ l r) 1)
             w (first (nth dict m))

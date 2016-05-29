@@ -5,8 +5,8 @@
 
 (defn read-dict [uri]
   (let [content (into-array (let [lines (str/split-lines (slurp uri))]
-                          (map (fn [line] (vector line))
-                               (sort lines))))]
+                              (map (fn [line] (vector line))
+                                   (sort lines))))]
     {:content content
      :r (dec (count content))}))
 

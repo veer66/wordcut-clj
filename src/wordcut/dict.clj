@@ -5,7 +5,7 @@
 
 (defn read-dict [uri]
   (let [content (into-array (let [lines (str/split-lines (slurp uri))]
-                              (map (fn [line] (vector line))
+                              (map (fn [line] {:surface line})
                                    (sort lines))))]
     {:content content
      :r (dec (count content))}))
@@ -38,7 +38,7 @@
     (loop [^Integer l l ^Integer r r ^Integer ans nil]
       (if (<= l r)
         (let [m (bit-shift-right (+ l r) 1)
-              w (first (nth content m))
+              w (:surface (nth content m))
               wlen (count w)]
           (if (<= wlen offset)
             (recur (+ 1 m) r ans)
@@ -57,7 +57,7 @@
 	l (dict-seek dict :LEFT (:l p) (:r p) offset ch)]
     (when l
       (let [r (dict-seek dict :RIGHT l (:r p) offset ch)
-            w (first (nth (:content dict) l))
+            w (:surface (nth (:content dict) l))
             w-len (count w)]
         {:s (:s p) :l l :r r :offset (inc offset)
          :dict dict

@@ -3,7 +3,9 @@
             [wordcut.dict :refer :all]))
 
 (defn basic-dict []
-  {:content [["AA"] ["AB"] ["BA"] ["BC"]] :r 3})
+  {:content [{:surface "AA"} {:surface "AB"}
+             {:surface "BA"} {:surface "BC"}]
+   :r 3})
 
 (deftest dict-test
   (testing "basic left search"

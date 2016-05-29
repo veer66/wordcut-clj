@@ -4,7 +4,7 @@
             [wordcut.tokenizer :refer :all]))
 
 (defn basic-dict []
-  [["AA"] ["AB"] ["BA"] ["BC"]])
+  {:content [["AA"] ["AB"] ["BA"] ["BC"]] :r 3})
 
 (deftest better-test
   (testing "has less unk"

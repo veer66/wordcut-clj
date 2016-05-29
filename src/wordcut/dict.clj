@@ -4,9 +4,11 @@
   (:gen-class))
 
 (defn read-dict [uri]
-  (into-array (let [lines (str/split-lines (slurp uri))]
-                (map (fn [line] (vector line))
-                     (sort lines)))))
+  (let [content (into-array (let [lines (str/split-lines (slurp uri))]
+                          (map (fn [line] (vector line))
+                               (sort lines))))]
+    {:content content
+     :r (dec (count content))}))
 
 (defn default-thai-dict-url []
   (io/resource "tdict-std.txt"))
@@ -32,20 +34,21 @@
                  ^Integer r
                  ^Integer offset
                  ^Character ch]
-  (loop [^Integer l l ^Integer r r ^Integer ans nil]
-    (if (<= l r)
-      (let [m (bit-shift-right (+ l r) 1)
-            w (first (nth dict m))
-            wlen (count w)]
-        (if (<= wlen offset)
-          (recur (+ 1 m) r ans)
-          (let [ch-w (nth w offset)
-                cmp (compare ch-w ch)]
-            (cond (< cmp 0) (recur (+ 1 m) r ans)
-                  (> cmp 0) (recur l (- m 1) ans)
-                  (= policy :LEFT) (recur l (- m 1) m)
-                  (= policy :RIGHT) (recur (+ 1 m) r m)))))    
-      ans)))
+  (let [content (:content dict)]
+    (loop [^Integer l l ^Integer r r ^Integer ans nil]
+      (if (<= l r)
+        (let [m (bit-shift-right (+ l r) 1)
+              w (first (nth content m))
+              wlen (count w)]
+          (if (<= wlen offset)
+            (recur (+ 1 m) r ans)
+            (let [ch-w (nth w offset)
+                  cmp (compare ch-w ch)]
+              (cond (< cmp 0) (recur (+ 1 m) r ans)
+                    (> cmp 0) (recur l (- m 1) ans)
+                    (= policy :LEFT) (recur l (- m 1) m)
+                    (= policy :RIGHT) (recur (+ 1 m) r m)))))    
+        ans))))
 
 (defn pointer-update [pointer ch]
   (let [p pointer
@@ -53,8 +56,8 @@
 	dict (:dict p)
 	l (dict-seek dict :LEFT (:l p) (:r p) offset ch)]
     (when l
-      (let [r (dict-seek (:dict p) :RIGHT l (:r p) offset ch)
-            w (first (nth dict l))
+      (let [r (dict-seek dict :RIGHT l (:r p) offset ch)
+            w (first (nth (:content dict) l))
             w-len (count w)]
         {:s (:s p) :l l :r r :offset (inc offset)
          :dict dict
@@ -62,7 +65,8 @@
 
 (defn pointers-update [pointers dict text i]
   (let [ch (nth text i)]
-    (->> (conj pointers {:s i :l 0 :r (dec (count dict))
-                         :dict dict :offset 0 :is-final false})
+    (->> (cons {:s i :l 0 :r (:r dict)
+                :dict dict :offset 0 :is-final false}
+               pointers)
          (map #(pointer-update % ch))
          (remove nil?))))

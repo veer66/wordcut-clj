@@ -49,7 +49,7 @@
 
 (deftest large-dict-seek-test
   (testing "basic seek"
-    (let [dict (read-default-thai-dict)]
+    (let [dict (read-default-dict "thai")]
       (is (= (dict-seek dict :LEFT
                         0 (:r dict) 0
                         \ข)

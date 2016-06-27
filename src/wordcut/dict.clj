@@ -40,23 +40,11 @@
              :right (make-index-right content)}
      :r (dec (count content))}))
 
-(defn default-thai-dict-url []
-  (io/resource "tdict-std.txt"))
-
-(defn read-default-thai-dict []
-  (read-dict (default-thai-dict-url)))
-
-(defn default-lao-dict-url []
-  (io/resource "laowords.txt"))
-
-(defn read-default-lao-dict []
-  (read-dict (default-lao-dict-url)))
-
-(defn default-khmer-dict-url []
-  (io/resource "khmerwords.txt"))
-
-(defn read-default-khmer-dict []
-  (read-dict (default-khmer-dict-url)))
+(defn read-default-dict [lang]
+  (let [lang-files {"khmer" "khmerwords.txt"
+                    "lao" "laowords.txt"
+                    "thai" "tdict-std.txt"}]
+    (read-dict (io/resource (get lang-files lang "thai")))))
 
 (defn dict-seek-bsearch [dict
                          policy

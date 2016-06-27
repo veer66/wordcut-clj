@@ -32,9 +32,11 @@
              (dec i)))))
 
 (defn read-dict [uri]
-  (let [content (into-array (let [lines (str/split-lines (slurp uri))]
-                              (map (fn [line] {:surface line})
-                                   (sort lines))))]
+  (let [content (->> (slurp uri)
+                     (str/split-lines)
+                     (sort)
+                     (map (fn [line] {:surface line}))
+                     (into-array))]
     {:content content
      :index {:left (make-index-left content)
              :right (make-index-right content)}

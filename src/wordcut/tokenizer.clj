@@ -1,6 +1,5 @@
 (ns wordcut.tokenizer
-  (:require [wordcut.dict :refer :all])
-  (:gen-class))
+  (:require [wordcut.dict :refer :all]))
 
 (defn better? [o1 o2]
   (reduce (fn [_ attr]

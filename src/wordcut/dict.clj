@@ -1,6 +1,6 @@
 (ns wordcut.dict
-  (:require [clojure.string :as str])
-  (:require [clojure.java.io :as io])
+  (:require [clojure.string :as str]
+            [clojure.java.io :as io])
   (:gen-class))
 
 (defn update-index [entries index i]

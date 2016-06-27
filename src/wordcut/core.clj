@@ -1,8 +1,8 @@
 (ns wordcut.core
-  (:require [wordcut.dict :as d])
-  (:require [wordcut.tokenizer :as w])
-  (:require [clojure.java.io :as io])
-  (:require [clojure.string :as str])
+  (:require [wordcut.dict :as d]
+            [wordcut.tokenizer :as w]
+            [clojure.java.io :as io]
+            [clojure.string :as str])
   (:use clojopts.core)
   (:gen-class))
 

@@ -1,7 +1,6 @@
 (ns wordcut.dict
-  (:require [clojure.string :as str])
-  (:require [clojure.java.io :as io])
-  (:gen-class))
+  (:require [clojure.string :as str]
+            [clojure.java.io :as io]))
 
 (defn update-index [entries index i]
   (let [entry (nth entries i)
@@ -33,31 +32,21 @@
              (dec i)))))
 
 (defn read-dict [uri]
-  (let [content (into-array (let [lines (str/split-lines (slurp uri))]
-                              (map (fn [line] {:surface line})
-                                   (sort lines))))]
+  (let [content (->> (slurp uri)
+                     (str/split-lines)
+                     (sort)
+                     (map (fn [line] {:surface line}))
+                     (into-array))]
     {:content content
      :index {:left (make-index-left content)
              :right (make-index-right content)}
      :r (dec (count content))}))
 
-(defn default-thai-dict-url []
-  (io/resource "tdict-std.txt"))
-
-(defn read-default-thai-dict []
-  (read-dict (default-thai-dict-url)))
-
-(defn default-lao-dict-url []
-  (io/resource "laowords.txt"))
-
-(defn read-default-lao-dict []
-  (read-dict (default-lao-dict-url)))
-
-(defn default-khmer-dict-url []
-  (io/resource "khmerwords.txt"))
-
-(defn read-default-khmer-dict []
-  (read-dict (default-khmer-dict-url)))
+(defn read-default-dict [lang]
+  (let [lang-files {"khmer" "khmerwords.txt"
+                    "lao" "laowords.txt"
+                    "thai" "tdict-std.txt"}]
+    (read-dict (io/resource (get lang-files lang "thai")))))
 
 (defn dict-seek-bsearch [dict
                          policy

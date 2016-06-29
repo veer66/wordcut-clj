@@ -1,6 +1,5 @@
 (ns wordcut.tokenizer
-  (:require [wordcut.dict :refer :all])
-  (:gen-class))
+  (:require [wordcut.dict :refer :all]))
 
 (defn better? [o1 o2]
   (reduce (fn [_ attr]
@@ -119,10 +118,10 @@
                  text)))
 
 (defn lao-tokenizer []
-  (tokenizer (read-default-lao-dict)))
+  (tokenizer (read-default-dict "lao")))
 
 (defn khmer-tokenizer []
-  (tokenizer (read-default-khmer-dict)))
+  (tokenizer (read-default-dict "khmer")))
 
 (defn thai-tokenizer []
-  (tokenizer (read-default-thai-dict)))
+  (tokenizer (read-default-dict "thai")))

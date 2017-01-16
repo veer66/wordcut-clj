@@ -20,4 +20,4 @@ A word segmentation tool for ASEAN languages written in Clojure
 
 ## Leiningen
 
-     [wordcut "0.1.2"]
+     [wordcut "0.1"]

@@ -11,6 +11,11 @@
           nil
           '(:unk :chunk)))
 
+(defn add [a b]
+  (+ a b))
+
+(add 10 20)
+
 (defn best-edge [edges]
   (reduce (fn [best e] (if (better? e best) e best)) edges))
 

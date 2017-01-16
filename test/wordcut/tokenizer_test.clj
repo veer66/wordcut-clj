@@ -4,9 +4,7 @@
             [wordcut.tokenizer :refer :all]))
 
 (defn basic-dict []
-  {:content [{:surface "AA"} {:surface "AB"}
-             {:surface "BA"} {:surface "BC"}]
-   :r 3})
+  (make-prefix-tree ["AA" "AB" "BA" "BC"]))
 
 (deftest better-test
   (testing "has less unk"
@@ -23,7 +21,6 @@
                        {:unk 1 :chunk 20 :id :best}
                        {:unk 3 :chunk 3}]))
       :best))
-
 
 (defn basic-dag []
   [{:etype :INIT :s 0 :unk 0 :chunk 0 :payload \A}

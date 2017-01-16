@@ -1,4 +1,4 @@
-(defproject wordcut "0.4.0"
+(defproject wordcut "1.0"
   :description "Word breaker for ASEAN languages written in Clojure"
   :url "https://github.com/veer66/wordcut-clj"
   :license {:name "LGPL v3"
